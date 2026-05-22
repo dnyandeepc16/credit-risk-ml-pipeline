@@ -44,3 +44,5 @@ with mlflow.start_run(run_name="credit_risk_rf_v1") as run:
 
 run_info = mlflow.search_runs(experiment_ids=[run.info.experiment_id], order_by=["start_time DESC"], max_results=1)
 display(run_info)
+
+print("change 2")
