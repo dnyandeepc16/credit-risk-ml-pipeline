@@ -1,0 +1,58 @@
+bundle:
+  name: credit-risk-ml-pipeline
+
+variables:
+  cluster_id:
+    description: ID of the existing all-purpose cluster
+    default: ""
+  env_name:
+    description: Target environment name
+    default: dev
+
+resources:
+  jobs:
+    credit_risk_training:
+      name: Credit Risk Training Pipeline - ${var.env_name}
+      email_notifications:
+        on_start: [dnyandeepc18@gmail.com]
+        on_success: [dnyandeepc18@gmail.com]
+        on_failure: [dnyandeepc18@gmail.com]
+      tasks:
+        - task_key: generate_features
+          notebook_task:
+            notebook_path: ./src/notebooks/01_feature_engineering.py
+          existing_cluster_id: ${var.cluster_id}
+        - task_key: train_model
+          notebook_task:
+            notebook_path: ./src/notebooks/02_model_training.py
+          existing_cluster_id: ${var.cluster_id}
+          depends_on:
+            - task_key: generate_features
+        - task_key: evaluate_model
+          notebook_task:
+            notebook_path: ./src/notebooks/03_model_evaluation.py
+          existing_cluster_id: ${var.cluster_id}
+          depends_on:
+            - task_key: train_model
+
+targets:
+  dev:
+    variables:
+      cluster_id: "0515-114708-mqc7fp97"
+      env_name: dev
+    workspace:
+      host: https://adb-7405614723592429.9.azuredatabricks.net/
+
+  qa:
+    variables:
+      cluster_id: "0515-114708-mqc7fp97"
+      env_name: qa
+    workspace:
+      host: https://adb-7405614723592429.9.azuredatabricks.net/
+
+  prod:
+    variables:
+      cluster_id: "0515-114708-mqc7fp97"
+      env_name: prod
+    workspace:
+      host: https://adb-7405614723592429.9.azuredatabricks.net/
